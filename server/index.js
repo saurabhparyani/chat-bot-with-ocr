@@ -7,10 +7,7 @@ const Analysis = require('./models/Analysis');
 const app = express();
 const port = 5000;
 
-app.use(cors({
-  origin: 'https://chat-bot-with-ocr.vercel.app', 
-  optionsSuccessStatus: 200,
-}));
+app.use(cors());
 app.use(express.json());
 
 const upload = multer({ dest: 'uploads/' });

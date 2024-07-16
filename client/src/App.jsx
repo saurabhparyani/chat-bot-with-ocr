@@ -84,13 +84,10 @@ export default function ChatBot() {
       setMessages([...messages, userMessage]);
 
       try {
-        const response = await fetch(
-          "https://chat-bot-with-ocr.onrender.com/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const response = await fetch("http://localhost:5000/upload", {
+          method: "POST",
+          body: formData,
+        });
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.error || "Something went wrong");
