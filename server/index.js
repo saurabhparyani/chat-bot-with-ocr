@@ -26,15 +26,15 @@ connection.once('open', () => {
 const allowedFileTypes = ['image/jpeg', 'image/png'];
 
 app.post('/upload', upload.single('image'), async (req, res) => {
-  const image = req.file.path;
+  const image = req.file;
 
   if (!image || !allowedFileTypes.includes(image.mimetype)) {
-    return res.status(400).send('Only JPG/PNG files are allowed');
+    return res.status(400).json({ error: 'Only JPG/PNG files are allowed' });
   }
 
   try {
     const { data: { text: imageText } } = await Tesseract.recognize(
-      image,
+      image.path,
       'eng',
       { logger: m => console.log(m) }
     );
@@ -45,7 +45,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     res.json({ imageText });
   } catch (error) {
     console.error('Error recognizing text:', error);
-    res.status(500).send('Error recognizing text from image');
+    res.status(500).json({ error: 'Error recognizing text from image' });
   }
 });
 
