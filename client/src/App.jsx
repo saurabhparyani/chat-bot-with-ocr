@@ -85,7 +85,7 @@ export default function ChatBot() {
 
       try {
         const response = await fetch(
-          "https://chat-bot-with-ocr.onrender.com/upload",
+          "https://chat-bot-with-ocr-backend.vercel.app/upload",
           {
             method: "POST",
             body: formData,
