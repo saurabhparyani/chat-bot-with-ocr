@@ -87,8 +87,12 @@ export default function ChatBot() {
         const response = await fetch(
           "https://chat-bot-with-ocr-backend.vercel.app/upload",
           {
+            mode: "no-cors",
             method: "POST",
             body: formData,
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
         );
         const data = await response.json();

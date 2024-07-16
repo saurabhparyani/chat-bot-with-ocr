@@ -21,9 +21,8 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
-// Allow requests from your frontend domain
 const corsOptions = {
-  origin: 'https://chat-bot-with-ocr.vercel.app', // Your frontend URL
+  origin: 'https://chat-bot-with-ocr.vercel.app',
   optionsSuccessStatus: 200,
 };
 
