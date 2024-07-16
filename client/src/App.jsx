@@ -1,26 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
-import { AiOutlinePaperClip } from "react-icons/ai";
+import { AiOutlinePaperClip, AiOutlineCloseCircle } from "react-icons/ai";
 import { IoMdSend } from "react-icons/io";
-import "./index.css";
 
 export default function ChatBot() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const messagesEndRef = useRef(null); // Ref for scrolling to bottom
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Add introductory message when the component mounts
     const introMessage = {
       type: "text",
-      content: "Hi there, what can I do for you?",
+      content:
+        "Beep, boop 🤖. I'm a bot used to analyze text and images! If you're sending an image, make sure to send it as a png or jpg.",
     };
     setMessages([introMessage]);
   }, []);
 
   useEffect(() => {
-    // Scroll to bottom when messages change
     scrollToBottom();
   }, [messages]);
 
@@ -35,19 +34,42 @@ export default function ChatBot() {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      if (file.type !== "image/jpeg" && file.type !== "image/png") {
+        alert("Only JPG/PNG files are allowed");
+        return;
+      }
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
+      setUploadingImage(true);
     }
+  };
+
+  const handleCancelUpload = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setUploadingImage(false);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (inputText) {
+    if (inputText && !uploadingImage) {
       const userMessage = { type: "text", content: inputText, isUser: true };
-      const botMessage = { type: "text", content: inputText, isUser: false };
+      const botMessage = {
+        type: "text",
+        content: (
+          <div>
+            Beep, boop 🤖. The analyzed text is:
+            <br></br>
+            <span style={{ color: "blueviolet", fontWeight: "bold" }}>
+              {inputText}
+            </span>
+          </div>
+        ),
+        isUser: false,
+      };
       setMessages([...messages, userMessage, botMessage]);
-      setInputText(""); // Clear the input box
+      setInputText("");
     }
 
     if (selectedFile) {
@@ -69,7 +91,15 @@ export default function ChatBot() {
         const data = await response.json();
         const botMessage = {
           type: "text",
-          content: `Okay, here's the recognized text from the image: ${data.imageText}`,
+          content: (
+            <div>
+              Beep, boop 🤖. The analyzed text is:
+              <br></br>
+              <span style={{ color: "blue", fontWeight: "bold" }}>
+                {data.imageText}
+              </span>
+            </div>
+          ),
           isUser: false,
         };
         setMessages((prevMessages) => [...prevMessages, botMessage]);
@@ -78,6 +108,7 @@ export default function ChatBot() {
       }
       setSelectedFile(null);
       setPreviewUrl(null);
+      setUploadingImage(false);
     }
   };
 
@@ -85,10 +116,18 @@ export default function ChatBot() {
     <div className="flex flex-col h-screen">
       <header className="bg-gray-900 text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+          <div className="w-6 h-6 bg-transparent rounded-full flex items-center justify-center">
             <span className="text-gray-900">🤖</span>
           </div>
-          <h1 className="text-lg font-bold">Chatbot</h1>
+          <h1 className="text-lg font-bold">ChatBotOCR </h1>
+          <span>by </span>
+          <a
+            className="text-red-300"
+            href="https://www.saurabhparyani.dev/"
+            target="_blank"
+          >
+            Saurabh Paryani
+          </a>
         </div>
       </header>
       <main className="flex-1 bg-gray-100 p-4 overflow-auto">
@@ -139,26 +178,44 @@ export default function ChatBot() {
             className="hidden"
             id="file-input"
           />
-          <div
-            className={`flex items-center w-full border border-gray-300 rounded p-2 pl-10 ${
-              previewUrl ? "h-40" : "h-12"
-            }`}
-          >
-            {previewUrl && (
+          {uploadingImage ? (
+            <div className="flex items-center w-full border border-gray-300 rounded p-2 pl-10 h-40">
+              <button
+                type="button"
+                className="text-gray-600 hover:text-gray-800"
+                onClick={handleCancelUpload}
+              >
+                <AiOutlineCloseCircle size={20} />
+              </button>
               <img
                 src={previewUrl}
                 alt="Preview"
-                className="h-full object-cover rounded mr-2 max-h-full w-24"
+                className="h-full object-contain rounded mr-2 max-h-full w-24"
               />
-            )}
-            <input
-              type="text"
-              placeholder="Type your message..."
-              className="flex-1 bg-transparent outline-none h-full"
-              value={inputText}
-              onChange={handleTextChange}
-            />
-          </div>
+            </div>
+          ) : (
+            <div
+              className={`flex items-center w-full border border-gray-300 rounded p-2 pl-10 ${
+                previewUrl ? "h-40" : "h-12"
+              }`}
+            >
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="h-full object-cover rounded mr-2 max-h-full w-24"
+                />
+              )}
+              <input
+                type="text"
+                placeholder="Type your message..."
+                className="flex-1 bg-transparent outline-none h-full"
+                value={inputText}
+                onChange={handleTextChange}
+                disabled={uploadingImage}
+              />
+            </div>
+          )}
           <button
             type="submit"
             className="bg-gray-900 text-white p-2 rounded ml-2"

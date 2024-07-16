@@ -23,8 +23,14 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
+const allowedFileTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
 app.post('/upload', upload.single('image'), async (req, res) => {
   const image = req.file.path;
+
+  if (!image || !allowedFileTypes.includes(image.mimetype)) {
+    return res.status(400).send('Only JPG/PNG files are allowed');
+  }
 
   try {
     const { data: { text: imageText } } = await Tesseract.recognize(
