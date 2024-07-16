@@ -87,12 +87,8 @@ export default function ChatBot() {
         const response = await fetch(
           "https://chat-bot-with-ocr-backend.vercel.app/upload",
           {
-            mode: "no-cors",
             method: "POST",
             body: formData,
-            headers: {
-              "Content-Type": "application/json",
-            },
           }
         );
         const data = await response.json();
@@ -105,7 +101,7 @@ export default function ChatBot() {
             <div>
               Beep, boop 🤖. The analyzed text is:
               <br></br>
-              <span style={{ color: "blue", fontWeight: "bold" }}>
+              <span style={{ color: "blueviolet", fontWeight: "bold" }}>
                 {data.imageText}
               </span>
             </div>

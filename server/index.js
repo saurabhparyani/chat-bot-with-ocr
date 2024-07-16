@@ -7,40 +7,36 @@ const Analysis = require('./models/Analysis');
 const app = express();
 const port = 5000;
 
+app.use(cors({
+  origin: 'https://chat-bot-with-ocr.vercel.app', 
+  optionsSuccessStatus: 200,
+}));
+app.use(express.json());
+
+const upload = multer({ dest: 'uploads/' });
+
 require('dotenv').config();
 
 const mongoURI = process.env.MONGO_URL;
 
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+
+mongoose.connect(mongoURI);
 
 const connection = mongoose.connection;
 connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
-const corsOptions = {
-  origin: 'https://chat-bot-with-ocr.vercel.app',
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
-app.use(express.json());
-
-const upload = multer({ dest: 'uploads/' });
-
 const allowedFileTypes = ['image/jpeg', 'image/png'];
 
 app.post('/upload', upload.single('image'), async (req, res) => {
-  const image = req.file;
-
-  if (!image || !allowedFileTypes.includes(image.mimetype)) {
-    return res.status(400).json({ error: 'Only JPG/PNG files are allowed' });
-  }
-
   try {
+    const image = req.file;
+
+    if (!image || !allowedFileTypes.includes(image.mimetype)) {
+      return res.status(400).json({ error: 'Only JPG/PNG files are allowed' });
+    }
+
     const { data: { text: imageText } } = await Tesseract.recognize(
       image.path,
       'eng',
@@ -53,7 +49,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     res.json({ imageText });
   } catch (error) {
     console.error('Error recognizing text:', error);
-    res.status(500).json({ error: 'Error recognizing text from image' });
+    res.status(500).send('Error recognizing text from image');
   }
 });
 
