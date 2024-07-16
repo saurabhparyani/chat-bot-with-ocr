@@ -7,21 +7,30 @@ const Analysis = require('./models/Analysis');
 const app = express();
 const port = 5000;
 
-app.use(cors());
-app.use(express.json());
-
-const upload = multer({ dest: 'uploads/' });
-
 require('dotenv').config();
 
 const mongoURI = process.env.MONGO_URL;
 
-mongoose.connect(mongoURI);
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const connection = mongoose.connection;
 connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
+
+// Allow requests from your frontend domain
+const corsOptions = {
+  origin: 'https://chat-bot-with-ocr.vercel.app', // Your frontend URL
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+
+const upload = multer({ dest: 'uploads/' });
 
 const allowedFileTypes = ['image/jpeg', 'image/png'];
 
