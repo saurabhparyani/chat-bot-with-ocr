@@ -23,7 +23,7 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
-const allowedFileTypes = ['image/jpeg', 'image/png', 'image/webp'];
+const allowedFileTypes = ['image/jpeg', 'image/png'];
 
 app.post('/upload', upload.single('image'), async (req, res) => {
   const image = req.file.path;
